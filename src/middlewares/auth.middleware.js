@@ -5,8 +5,8 @@ const { APIError } = require("./errorApi");
 exports.userRequired = (req,res,next)=>{
     try {
         let token = req.cookie?.bflux;//getting from cookies
-        if(!token) token = req.header?.authorization?.split(" ")[1];
-        if(!token) token = req.header?.cookie?.split("=")[1];
+        if(!token) token = req.headers?.authorization?.split(" ")[1];
+        if(!token) token = req.headers?.cookie?.split("=")[1];
         if(!token) token = req.body?.token;
         if(!token) return next(APIError.unauthenticated());
         const payload = jwt.verify(token, config.ACCESS_TOKEN_SECRET)
@@ -19,8 +19,7 @@ exports.userRequired = (req,res,next)=>{
         console.log(payload);
 
     } catch (error) {
-        if(error.message === "jwt expired") next(APIError.unauthenticated("Access Token Expired"));
-        else next(error)
+        if(error.message === "jwt expired")return next(APIError.unauthenticated("Access Token Expired"));
         next(error)
     }
     
