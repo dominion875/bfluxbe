@@ -4,10 +4,9 @@ const jwt = require("jsonwebtoken");
 const { config } = require("../config");
 const { reset } = require("nodemon");
 const { isEmailvalid, isPhoneNumberValid } = require("../utils/validate");
-const { cloudinary } = require("../utils/cloudinary");
 const ProfileModel = require("../models/profile");
 const { APIError } = require("../middlewares/errorApi");
-
+const {cloudinary, assets} = require("../utils/cloudinary")
 exports.register = async(req, res, next) =>{
     try {
         
@@ -183,20 +182,22 @@ const payload = {
     }
     
     //updating new picture for the user
-    exports.updateProfile = async(req,res)=>{
+    exports.updateProfile = async (req, res, next) =>{
         try {
             //fileData
             const {fileData} = req.body;
+            const profile ={};
+            console.log(cloudinary.config)
             //firsst image upload
             if(fileData){
-                cloudinary.uploader.upload(fileData, (error,result)=>{
-                    if (error) return res.status(400).json({error});
-                    profile.imageId = result.public_id;
-                    profile.imageUrl = result.secure_url;
-                })
+                const result = await cloudinary.uploader.upload(fileData, {...assets} );
+                console.log(result);
+                profile.imageId = result.public_id;
+                profile.imageUrl = result.secure_url;
+                profile.user=req.userId;
             }
             const saveImage = ProfileModel.create({...profile});
-            if(profile.error) return res.status(400).json({error});
+            if(saveImage.error) return res.status(400).json({error:saveImage.error});
             res.status(200).json({success:true, msg: "profile picture updated successfully"});
 
         } catch (error) {

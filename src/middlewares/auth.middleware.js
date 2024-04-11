@@ -14,9 +14,7 @@ exports.userRequired = (req,res,next)=>{
         req.userId = payload.id;
         req.userEmail = payload.email;
         req.userRole = payload.role;
-
         next();
-        console.log(payload);
 
     } catch (error) {
         if(error.message === "jwt expired")return next(APIError.unauthenticated("Access Token Expired"));

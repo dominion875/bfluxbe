@@ -2,11 +2,14 @@ const { connect, default: mongoose } = require("mongoose");
 const app = require("./src/app");
 const { config } = require("./src/config");
 const AccountModel = require("./src/models/account");
+const {engine} =    require("express-handlebars")
 const router = require("./src/routes");
 const { errorHandler, notFound } = require("./src/middlewares/error.middleware");
 
 
-
+app.engine('handlebars', engine({extname: '.handlesbars'}));
+app.set('.view engine', '.handlesbars');
+app.set('.views', '../src/views')
 
 app.use("/api/v1", router)
 app.all("*", notFound)
